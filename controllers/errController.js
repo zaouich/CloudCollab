@@ -36,6 +36,7 @@ const prodHandller = (err,req,res)=>{
         message:err.message})
     return res.status(500).json({
         status:"error",
+        err,
         message:"some thing went very wrong"})
 
 }

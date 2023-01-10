@@ -42,7 +42,7 @@ const getAllFiles =async(req,res,next)=>{
 }
 
 const getOneFile =catchAsync( async(req,res,next)=>{
-    const file = await File.findById(req.params.id)
+    const file = await File.findById(req.params.id).populate({path:""})
     if(!file) return next(new AppError("no file with this id",400))
     res.status(200).json({
         status : "success",
@@ -60,19 +60,23 @@ const storage = multer.diskStorage({
     }
   })
   const fileFilter = (req, file, cb) => {
-    if ( file.mimetype.split("/")[1] !== "torrent") {
-        return cb(new AppError(400, "should only be a torrent file"), false)
-         
-    } 
-  };
+    if ( file.mimetype.split("/")[1] !== "x-bittorrent") {
+        console.log(file.mimetype.split("/")[1])
+         cb(new AppError(400, "should only be a torrent file"), false)
+    
+  }
+  else {
+    cb(null,true)
+  }
+  
+  }
 const uplaod = multer({storage,fileFilter}).single("file")
 
 // update files
 const uplaodFile =catchAsync(async(req,res,next)=>{
     const {name,description,categorie}=req.body
     if(req.file) req.body.file  = req.file.filename
-    console.log(req.body)
-    const newFile =await File.create({file:req.body.file,name,description,categorie})
+    const newFile = await File.create({file:req.body.file,name,description,categorie,uploader:req.user._id})
     res.status(201).json({
         newFile
     })
