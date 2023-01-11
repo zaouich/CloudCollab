@@ -57,5 +57,6 @@ userschema.methods.isChanged = async function(creationDate){
     if(!this.changedAt) return false 
     return  parseInt(this.changedAt.getTime()/1000) > creationDate
 }
+
 const User =  model("User",userschema)
 module.exports = User

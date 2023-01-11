@@ -3,6 +3,7 @@ const { checkLogin } = require("../controllers/authController");
 const { getAllUsers,signUp,login,updatePassword,updateMe,deleteMe } = require("../controllers/userController");
 
 const router = Router()
+
 router.route("/").get(getAllUsers)
 router.route("/signUp").post(signUp)
 router.route("/login").post(login)

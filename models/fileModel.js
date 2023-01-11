@@ -1,4 +1,4 @@
-const {mongoose,Schema, model} = require("mongoose")
+const {mongoose,Schema, model} = require("mongoose");
 const FileSchema = new Schema({
     file:{
         type : String,
@@ -28,6 +28,9 @@ const FileSchema = new Schema({
     },likes : {
         type : Number,
         default:0,
+    },nComment:{
+        type : Number,
+        default:0,
     }
     ,uploader:{
         type: mongoose.Schema.ObjectId,
@@ -37,10 +40,17 @@ const FileSchema = new Schema({
         default : true
     }
 
+},{
+    toJSON:{virtuals:true},
+    toObject : {virtuals:true}
 })
-
+FileSchema.virtual("comments",{
+    ref:"Comment",
+    foreignField:"file",
+    localField:"_id"
+})
 FileSchema.pre(/^find/, function(next) {
-    this.find({ active: true }).populate("uploader",'userName -_id ')
+    this.find({ active: true }).populate("uploader",'userName -_id ').populate("comments",'user text createdAt -_id -file')
     next()
   });
 

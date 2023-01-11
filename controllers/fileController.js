@@ -56,7 +56,7 @@ const storage = multer.diskStorage({
     },
     filename: function (req, file, cb) {
       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-      cb(null, file.originalname)
+      cb(null, `${req.user._id}-${uniqueSuffix}-${file.originalname}`)
     }
   })
   const fileFilter = (req, file, cb) => {
@@ -99,4 +99,8 @@ const updateFile = catchAsync(async(req,res,next)=>{
 const deleteAll  = async(req,res,next)=>{
     await File.deleteMany()
 }
-module.exports = {getAllFiles,getOneFile,uplaod,uplaodFile,deleteAll,updateFile}
+const downloadFile = (req,res,next)=>{
+    var file ='./public/files/node.torrent'
+    res.download(file);
+}
+module.exports = {getAllFiles,getOneFile,uplaod,uplaodFile,deleteAll,updateFile,downloadFile}
