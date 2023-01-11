@@ -2,6 +2,8 @@ const User = require("../models/usersModel")
 const AppError = require("../utils/AppError")
 const jwt = require("jsonwebtoken")
 const catchAsync = require("../utils/catchAsync")
+const sendEmail = require("../utils/sendEmail")
+const crypto = require("crypto")
 // admin 
 const getAllUsers = catchAsync(async(req,res,next)=>{
     const users = await User.find()
@@ -94,4 +96,43 @@ const updateMe = async(req,res,next)=>{
      await user.save()
      res.status(200).send("the account has been deleted please contact us for more infos")
  })
-module.exports = {getAllUsers,getOneUser,signUp,login,updatePassword,updateMe,deleteMe}
+ // forget password
+ const forgetPassword =async(req,res,next)=>{
+    // the email
+    const {email} = req.body
+    if(!email) return next(new AppError(400,"you should enter your email"))
+    // check the email
+    const user =await User.findOne({email})
+    if(!user) return next(new AppError(400,"no user found by this email"))
+    // reset token
+    const res_ = await user.resetTokenMethod()
+    await user.save({validateBeforeSave:false})
+   
+            // send email
+        sendEmail({
+            to:email,
+            subject:'forgot your password ?',
+            text:`did you forgot your password ? \n if you do : please send a patch request to this link \n ${req.protocol}://${req.get("host")}/api/v1/users/resetPassword/${res_} \n if you dont just egnore this mail`
+
+        })
+        res.status(201).json({
+            status : "success",
+            message :"sent to your email"
+        })
+
+    
+    
+
+ }  
+ const resetPassword =catchAsync( async(req,res,next)=>{
+    const {password,confirmPassword}= req.body
+    const token = req.params.resetToken
+    const cryptedToken = crypto.createHash("sha256").update(token).digest("hex")
+    const user = await User.findOne({resetToken:cryptedToken,exipreResetToken:{'$gt':new Date(Date.now())}})
+    if(!user) return next(new AppError(400,"invalid or expired token please try again"))
+    user.password = password,
+    user.confirmPassword = confirmPassword
+    await user.save()
+
+ })
+module.exports = {getAllUsers,getOneUser,signUp,login,updatePassword,updateMe,deleteMe,forgetPassword,resetPassword}

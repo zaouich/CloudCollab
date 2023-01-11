@@ -17,7 +17,9 @@ const CommentsSchema = new Schema({
         default : Date.now()
     }
 })
+
 CommentsSchema.index({user:1,file:1},{unique:true})
+
 CommentsSchema.statics.calc =async function(fileId){
     const commentsStatics =await this.aggregate([
         {
