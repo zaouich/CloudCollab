@@ -17,15 +17,23 @@ const getOneLikeForFileId = catchAsync(async(req,res,next)=>{
 })
 const postNewLike = catchAsync(async(req,res,next)=>{
     const user = req.user._id
-    const {file} = req.body
+    const file = req.params.fileId
+    
     const newLike =await Like.create({file,user})
+    console.log(newLike)
     res.status(200).json({
         status : "success",
         newLike
     })
     next()
 })
-const deleteLike = async(req,res,next)=>{
-    await Like.findOneAndDelete({user:req.user._id,file:req.params.fileId})
+const deleteLike = catchAsync(async(req,res,next)=>{
+    // get the like 
+     const like = await Like.findOneAndDelete({user:req.user._id,file:req.params.fileId})
+     res.status(200).send("deleted")
+})
+const deleteAllLikes = async(req,res,next)=>{
+    await Like.deleteMany()
+    res.send("all likes deleted")
 }
-module.exports={getAllLikeForFileId,getOneLikeForFileId,postNewLike,deleteLike}
+module.exports={getAllLikeForFileId,getOneLikeForFileId,postNewLike,deleteLike,deleteAllLikes}

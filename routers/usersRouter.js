@@ -1,10 +1,11 @@
 const { Router } = require("express");
 const { checkLogin } = require("../controllers/authController");
-const { getAllUsers,signUp,login,updatePassword,updateMe,deleteMe,forgetPassword,resetPassword } = require("../controllers/userController");
+const { getAllUsers,signUp,login,updatePassword,updateMe,deleteMe,forgetPassword,resetPassword,getOneUser } = require("../controllers/userController");
 
 const router = Router()
 
 router.route("/").get(getAllUsers)
+router.route("/:id").get(getOneUser)
 router.route("/signUp").post(signUp)
 router.route("/login").post(login)
 router.route("/updatePassword").patch(checkLogin,updatePassword)

@@ -38,6 +38,25 @@ const userschema = new Schema({
     },
     resetToken  : String,
     exipreResetToken:Date
+},{
+    toJSON:{virtuals:true},
+    toObject : {virtuals:true}
+})
+
+userschema.virtual("comments",{
+    ref:"Comment",
+    foreignField:"user",
+    localField:"_id"
+})
+userschema.virtual("likes_",{
+    ref:"Like",
+    foreignField:"user",
+    localField:"_id"
+})
+userschema.virtual("downloads",{
+    ref:"Download",
+    foreignField:"user",
+    localField:"_id"
 })
 userschema.pre(/^find/,function(next){
     this.find({active:true})

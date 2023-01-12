@@ -16,7 +16,7 @@ const getAllUsers = catchAsync(async(req,res,next)=>{
     })
 })
 const getOneUser = catchAsync(async(req,res,next)=>{
-    const user = await User.findById(req.params.id)
+    const user = await User.findById(req.params.id).populate("comments likes_ downloads")
     if(!user) return next(new AppError(300,"no user found by this id "))
     res.status(200).json({
         status : "success",
@@ -39,10 +39,7 @@ const signUp  =catchAsync( async(req,res,next)=>{
 
     const newUser = await User.create({userName,email,password,confirmPassword})
     console.log(newUser)
-    res.status(201).json({
-        status : "success",
-        newUser
-    })
+    PassPort(newUser)
 })
 // login 
 const login = catchAsync(async(req,res,next)=>{

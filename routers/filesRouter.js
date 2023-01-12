@@ -11,6 +11,6 @@ router.use("/:fileId/downloads",downloadsRouter)
 
 router.route("/").get(getAllFiles).post(checkLogin,uplaod, uplaodFile ).delete(deleteAll)
 
-router.route("/:id").get(getOneFile).patch(uplaod,updateFile)
+router.route("/:id").get(getOneFile).patch(checkLogin,uplaod,updateFile)
 
 module.exports = router
