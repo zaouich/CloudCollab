@@ -1,5 +1,7 @@
 const Like = require("../models/likesModel")
+const AppError = require("../utils/AppError")
 const catchAsync = require("../utils/catchAsync")
+const checkObject = require("../utils/checkFile")
 
 const getAllLikeForFileId = catchAsync(async(req,res,next)=>{
     const likes = await Like.find({file:req.params.fileId})
@@ -17,8 +19,8 @@ const getOneLikeForFileId = catchAsync(async(req,res,next)=>{
 })
 const postNewLike = catchAsync(async(req,res,next)=>{
     const user = req.user._id
-    const file = req.params.fileId
-    
+    const file =await Like.findById(req.params.fileId)
+    if(!file) return next(new AppError(400,"fo file with this id"))
     const newLike =await Like.create({file,user})
     console.log(newLike)
     res.status(200).json({
@@ -27,13 +29,17 @@ const postNewLike = catchAsync(async(req,res,next)=>{
     })
     next()
 })
+
 const deleteLike = catchAsync(async(req,res,next)=>{
     // get the like 
-     const like = await Like.findOneAndDelete({user:req.user._id,file:req.params.fileId})
+   /*  const like = await Like.findOne({user:req.user._id,file:req.params.fileId}) */
+    if(!await checkObject(Like,req)) return next(new AppError(400,"you have no like on this file"))
+    await Like.findOneAndDelete({user:req.user._id,file:req.params.fileId})
      res.status(200).send("deleted")
 })
 const deleteAllLikes = async(req,res,next)=>{
     await Like.deleteMany()
     res.send("all likes deleted")
 }
+
 module.exports={getAllLikeForFileId,getOneLikeForFileId,postNewLike,deleteLike,deleteAllLikes}

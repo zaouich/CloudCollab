@@ -16,7 +16,7 @@ const getAllUsers = catchAsync(async(req,res,next)=>{
     })
 })
 const getOneUser = catchAsync(async(req,res,next)=>{
-    const user = await User.findById(req.params.id).populate("comments likes_ downloads")
+    const user = await User.findById(req.params.id).populate("comments likes_ downloads","_id")
     if(!user) return next(new AppError(300,"no user found by this id "))
     res.status(200).json({
         status : "success",
