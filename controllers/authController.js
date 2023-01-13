@@ -1,8 +1,9 @@
 const AppError = require("../utils/AppError")
 const jwt = require("jsonwebtoken")
 const User = require("../models/usersModel")
+const catchAsync = require("../utils/catchAsync")
 
-const checkLogin = async(req,res,next)=>{
+const checkLogin = catchAsync(async(req,res,next)=>{
     // check if there is a token
     if(!req.headers.authorization || ! req.headers.authorization.startsWith("Bearer"))return next(new AppError(401,"please log in first"))
     // get the token
@@ -16,5 +17,5 @@ const checkLogin = async(req,res,next)=>{
     if(await user.isChanged(verified.iat) )  return next(new AppError(401,"the user has been changed his password"))
     req.user = user
     next()
-}
+})
 module.exports = {checkLogin}

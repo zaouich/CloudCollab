@@ -23,14 +23,17 @@ likesSchema.statics.calcul=async function(fileId){
             }
         }]
     )
-    if(stat.length==0) return await File.findOneAndUpdate({_id:fileId},{likes:0})
-    await File.findOneAndUpdate({_id:fileId},{likes:stat[0].nLikes})
+        if(stat.length ==0) return await File.findOneAndUpdate({_id:fileId},{likes:0})
+        await File.findOneAndUpdate({_id:fileId},{likes:stat[0].nLikes})
 }
 likesSchema.post("save",async function(doc){
-     doc.constructor.calcul(doc.file)
+    console.log(doc.file._id,"*******§§§§§§§§§§§!!!")
+     doc.constructor.calcul(doc.file._id)
 })
 
 likesSchema.post('findOneAndDelete',async function(doc){
+    console.log(doc.file)
+
     if(doc)return await doc.constructor.calcul(doc.file)
 })
 const Like = model("Like",likesSchema)

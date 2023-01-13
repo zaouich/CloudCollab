@@ -43,7 +43,7 @@ const getAllFiles =async(req,res,next)=>{
 
 const getOneFile =catchAsync( async(req,res,next)=>{
     const file = await File.findById(req.params.id).populate({path:""})
-    if(!file) return next(new AppError("no file with this id",400))
+    if(!file) return next(new AppError(400,"no file found by this id"))
     res.status(200).json({
         status : "success",
         data : file
@@ -83,6 +83,9 @@ const uplaodFile =catchAsync(async(req,res,next)=>{
 })
 // update files 
 const updateFile = catchAsync(async(req,res,next)=>{
+    // get the file
+    const file = await File.findOne({uploader:req.user._id,_id:req.params.id})
+    if(!file) return next(new AppError(400,"no file belong to you"))
     const body_= {...req.body}
     var allowed =[ "name","description","categorie"]
     Object.keys(body_).forEach(el=>{
