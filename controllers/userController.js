@@ -39,7 +39,7 @@ const signUp  =catchAsync( async(req,res,next)=>{
 
     const newUser = await User.create({userName,email,password,confirmPassword})
     console.log(newUser)
-    PassPort(newUser)
+    PassPort(newUser,res)
 })
 // login 
 const login = catchAsync(async(req,res,next)=>{
