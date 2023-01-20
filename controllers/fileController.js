@@ -26,7 +26,7 @@ const getAllFiles =async(req,res,next)=>{
         const fields = req.query.fields.split(",").join(" ")
           query = query.select(fields)
     }
-    else query = query.select("-_id")
+    else query = query.select("-__v")
 
     // 5 pagination
     const page = req.query.page *1 || 1
