@@ -16,7 +16,7 @@ const getAllUsers = catchAsync(async(req,res,next)=>{
     })
 })
 const getOneUser = catchAsync(async(req,res,next)=>{
-    const user = await User.findById(req.params.id).populate("comments likes_ downloads","_id")
+    const user = await User.findById(req.params.id).populate("comments likes_ downloads")
     if(!user) return next(new AppError(300,"no user found by this id "))
     res.status(200).json({
         status : "success",
@@ -27,6 +27,11 @@ const getOneUser = catchAsync(async(req,res,next)=>{
 // get the passport 
 const PassPort =async (user,res)=>{
      const token = jwt.sign({id:user._id},process.env.JWT,{expiresIn:process.env.JWTEXPIRESDELAI})
+     res.cookie("jwt",token,{
+        expires:new Date(Date.now(process.env.COOKIEEX *24*60*60*1000)),
+        httpOnly:true,
+        secure :false
+     })
      res.status(200).json({
         status:"success",
         user,
@@ -34,7 +39,7 @@ const PassPort =async (user,res)=>{
     })
 }
 // sign up
-const signUp  =catchAsync( async(req,res,next)=>{
+const signUp = catchAsync( async(req,res,next)=>{
     const {userName,email,password,confirmPassword}= req.body
 
     const newUser = await User.create({userName,email,password,confirmPassword})
@@ -47,12 +52,13 @@ const login = catchAsync(async(req,res,next)=>{
     const {email,password} = req.body
     if(!email || !password) return next(new AppError(401,"please enter your email and your password"))
     // check if the email and the password are true
-    const user = await User.findOne({email}).select("+ password")
+    const user = await User.findOne({email})
     if(!user ||! await  user.isCorrectPassword(password,user.password)) return next(new AppError(401,"incorrect email or password"))
     // give the passport
     PassPort(user,res)
 }   
 )
+
 // update password
 const updatePassword = catchAsync(async(req,res,next)=>{
     const user = await User.findOne({_id:req.user._id})
@@ -71,7 +77,7 @@ const updatePassword = catchAsync(async(req,res,next)=>{
     PassPort(user,res)
 })
 // update me 
-const updateMe = async(req,res,next)=>{
+const updateMe = catchAsync(async(req,res,next)=>{
     const body_= {...req.body}
     var allowed =["userName","email"]
     Object.keys(body_).forEach(el=>{
@@ -82,7 +88,7 @@ const updateMe = async(req,res,next)=>{
         status : "success",
         user
     })
-}
+})
 // delete me 
  const deleteMe = catchAsync(async(req,res,next)=>{
     const user = await User.findOne({_id:req.user._id})
@@ -90,7 +96,7 @@ const updateMe = async(req,res,next)=>{
      if(!req.body.password) return next(new AppError(401,"please provide your  password"))
      if(!await user.isCorrectPassword(req.body.password,user.password)) return next(new AppError(401,"the  password is not true"))
      user.active = false
-     await user.save()
+     await user.save({validateBeforeSave:false})
      res.status(200).send("the account has been deleted please contact us for more infos")
  })
  // forget password
@@ -130,6 +136,5 @@ const updateMe = async(req,res,next)=>{
     user.password = password,
     user.confirmPassword = confirmPassword
     await user.save()
-
  })
 module.exports = {getAllUsers,getOneUser,signUp,login,updatePassword,updateMe,deleteMe,forgetPassword,resetPassword}
